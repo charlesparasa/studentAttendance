@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.85.0.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        AWS.config.region = 'ap-southeast-2';
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: 'ap-southeast-2:6ef62ac6-0dc4-4a06-a6d9-f046a319bc44',
+        });
+        var s3 = new AWS.S3({apiVersion: '2006-03-01'})
+	$('#submit').click(function openWin() {
+		var date = document.getElementById("attendancedate").value;
+		var date1 = date.toString()
+		var attenddate = date1.replace(new RegExp('/', 'g'), '-'); 
+		var period = document.getElementById("period").value;
+		var API_url = "https://wqscm53uzh.execute-api.ap-southeast-2.amazonaws.com/dev?date="+attenddate+"&period="+period;
+		window.open(API_url);
+	});
+        
+    });
+  </script>
+  </head>
+  <body>
+    <h1>Students Attendance</h1>
+    <div><p>Upload date </p>
+        <input id="attendancedate" type="date">
+        
+        <br/><br/>
+    </div>
+    <hr/>
+    <br/>
+    <div><p>period</p>
+        <input id="period" type="text">
+        
+        <br/><br/>
+    <button id= "submit">Submit</button>
+    </div> 
+    <hr/>
+    <br/>  
+  </body>
+</html>
