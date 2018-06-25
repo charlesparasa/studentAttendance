@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>  
+    <style>
+        table, th, td 
+        {
+            margin:10px 0;
+            border:solid 1px #333;
+            padding:2px 4px;
+            font:15px Verdana;
+        }
+        th {
+            font-weight:bold;
+        }
+        
+        div.gallery {
+            margin: 5px;
+            border: 1px solid #ccc;
+            float: left;
+            width: 200px;
+        }
+        div.gallery:hover {
+            border: 1px solid #777;
+        }
+        div.gallery img {
+            width: 30%;
+            height: auto;
+        }
+        div.desc {
+            padding: 10px;
+            text-align: center;
+            font-size:12px
+        }
+        div.source img {
+            width: 200px;
+            height: auto;
+        }
+    </style>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />  
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.85.0.min.js"></script>
+    <script>
+  $(document).ready(function(){ 
+	 $('#submit').click(function() {
+    var HttpClient = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+            }
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.send( null );
+      }
+    }
+    //var message = null;
+    var client = new HttpClient();
+    var api_url = 'https://wqscm53uzh.execute-api.ap-southeast-2.amazonaws.com/dev?date='+ $('#attendancedate').val() + '&period=' + $('#period').val();
+    //alert(api_url);
+    client.get(api_url, function(response) {
+      // document.getElementById('printFollower').innerHTML = response;
+       console.log(response);
+       //$("#printFollower").printThis();
+      // var result = JSON.parse(response);
+       //document.getElementById('printFollower').innerHTML = JSON.stringify(result.Not_Attended_Class);
+       //function CreateTableFromJSON() {
+        var result = JSON.parse(response);
+        var attended = result.Attended_Class;
+        var not_attended = result.Not_Attended_Class;
+        // EXTRACT VALUE FOR HTML HEADER. 
+        var col = [];
+        for (var i = 0; i < not_attended.length; i++) {
+            for (var key in not_attended[i]) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+        }
+
+        // CREATE DYNAMIC TABLE.
+        var table = document.createElement("table");
+        //var capt = document.getElement("caption")
+        // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+        var trow = table.insertRow(-1);
+        var cell1 = trow.insertCell(0);
+        cell1.innerHTML = "NOT ATTENDED CLASS";
+        var tr = table.insertRow(-1);                   // TABLE ROW.
+
+        for (var i = 0; i < col.length; i++) {
+            var th = document.createElement("th");      // TABLE HEADER.
+            th.innerHTML = col[i];
+            tr.appendChild(th);
+        }
+
+        // ADD JSON DATA TO THE TABLE AS ROWS.
+        for (var i = 0; i < not_attended.length; i++) {
+
+            tr = table.insertRow(-1);
+
+            for (var j = 0; j < col.length; j++) {
+                var tabCell = tr.insertCell(-1);
+               if(j==0){
+                   tabCell.innerHTML = [
+                                '<div class="gallery">',
+                                '<a target="_blank" href="' + not_attended[i][col[j]]  + '"><img src="' + not_attended[i][col[j]] +'"/></a>',
+                                '</div>'
+                            ]
+                }
+                else
+                tabCell.innerHTML = not_attended[i][col[j]];
+            }
+        }
+
+        // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+        var divContainer = document.getElementById("printFollower");
+        divContainer.innerHTML = "";
+        divContainer.appendChild(table);
+    //}
+
+        var col1 = [];
+        for (var i = 0; i < attended.length; i++) {
+            for (var key in attended[i]) {
+                if (col1.indexOf(key) === -1) {
+                    col1.push(key);
+                }
+            }
+        }
+
+        // CREATE DYNAMIC TABLE.
+        var table1 = document.createElement("table");
+        //var capt = document.getElement("caption")
+        // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+        var trow1 = table1.insertRow(-1);
+        var cell11 = trow1.insertCell(0);
+        cell11.innerHTML = "ATTENDED CLASS";
+        var tr1 = table1.insertRow(-1);                   // TABLE ROW.
+
+        for (var i = 0; i < col1.length; i++) {
+            var th1 = document.createElement("th");      // TABLE HEADER.
+            th1.innerHTML = col1[i];
+            tr1.appendChild(th1);
+        }
+
+        // ADD JSON DATA TO THE TABLE AS ROWS.
+        for (var i = 0; i < attended.length; i++) {
+
+            tr1 = table1.insertRow(-1);
+
+            for (var j = 0; j < col1.length; j++) {
+                var tabCell1 = tr1.insertCell(-1);
+                if(j==0){
+                   tabCell1.innerHTML = [
+                                '<div class="gallery">',
+                                '<a target="_blank" href="' + attended[i][col1[j]]  + '"><img src="' + attended[i][col1[j]] +'"/></a>',
+                                '</div>'
+                            ]
+                }
+                else
+                tabCell1.innerHTML = attended[i][col1[j]];
+            }
+        }
+
+        // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+        var divContainer1 = document.getElementById("printFollower1");
+        divContainer1.innerHTML = "";
+        divContainer1.appendChild(table1);
+    });
+
+  });
+});
+  </script>
+  </head>
+  <body>
+    <h1>Students Attendance</h1>
+      <div><p>Upload date </p>
+          <input id="attendancedate" type="text">   
+          <br/><br/>
+      </div>
+    <hr/>
+    <br/>
+    <div><p>period</p>
+        <input id="period" type="text">
+        <br/><br/>
+        <button id= "submit">Submit</button>
+    </div>
+    <div id="printFollower">
+    </div>
+    <div id="printFollower1">
+    </div>
+    <hr/>
+    <br/> 
+  </body>
+</html>
